@@ -1,4 +1,4 @@
-const Inbox = artifacts.require('Inbox');
+const Mutatio = artifacts.require('Mutatio');
 
 // exceptionsHelpers.js will facilitate some functions to test our contract
 // let catchRevert = require("./exceptionsHelpers.js").catchRevert;
@@ -12,7 +12,7 @@ beforeEach( async ()=> {
     // Get list of all accounts       
     accounts = await web3.eth.getAccounts();
     
-    lottery = await Inbox.new();
+    lottery = await Mutatio.new();
 });
 
 describe('Lottery Contract', () => {

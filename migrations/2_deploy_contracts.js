@@ -1,5 +1,5 @@
-const Inbox = artifacts.require("Inbox");
+const Mutatio = artifacts.require("Mutatio");
 
 module.exports = function(deployer) {
-  deployer.deploy(Inbox);
+  deployer.deploy(Mutatio);
 };
