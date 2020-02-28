@@ -60,8 +60,12 @@ contract Mutatio {
         public
         // isNotStarted(orderId)
         isAnExchange()
-        returns(bool)
+        returns(Order memory)
     {
         orders[orderId].exchangeStarted = true;
+        orders[orderId].exchangeAddress = msg.sender;
+        return orders[orderId];
     }
+
+
 }
