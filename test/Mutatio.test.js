@@ -25,8 +25,6 @@ let accounts;
         assert.ok(mutatio.options.address);
       });
 
-
-    
       it('deposit function should emit an event with the exchange parameters', async () => {
         await mutatio.methods.deposit(
           tokenAddress, 

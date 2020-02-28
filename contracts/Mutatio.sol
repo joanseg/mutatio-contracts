@@ -25,8 +25,16 @@ contract Mutatio {
         uint depositAmount,
         address buyerddress,
         address targetToken,
-        uint amountToken
+        uint amountToken,
+        bool exchangeStarted
     );
+
+    modifier isNotStarted(uint orderId) {
+        require(orders[orderId].exchangeStarted =! true)
+    }
+    modifier isAnExchange() {
+        msg.sender == '0x4d6eC2391999Ff022A72614F7208D6cd42c34Ecc';
+    }
 
     function exchangeEth(address _tokenAddress, uint _amountToken)
         public
@@ -42,6 +50,15 @@ contract Mutatio {
         orders[orderId] = thisOrder;
         emit LogExchangeEth(orderId, msg.value, msg.sender, _tokenAddress, _amountToken);
         return  orderId;
+    }
+
+    function exchangeStarted(uint orderId)
+        public
+        isNotStarted()
+        isAnExchange()
+        returns(bool)
+    {
+        orders[orderId].exchangeStarted = True
     }
 
 
