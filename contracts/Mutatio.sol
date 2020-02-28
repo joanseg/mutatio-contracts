@@ -16,6 +16,7 @@ contract Mutatio {
         address targetToken;
         uint amountToken;
         address exchangeAddress;
+        bool exchangeStarted;
     }
 
     mapping (uint => Order) orders;
@@ -30,10 +31,12 @@ contract Mutatio {
     );
 
     modifier isNotStarted(uint orderId) {
-        require(orders[orderId].exchangeStarted =! true)
+        require(orders[orderId].exchangeStarted =! true);
+        _;
     }
     modifier isAnExchange() {
-        msg.sender == '0x4d6eC2391999Ff022A72614F7208D6cd42c34Ecc';
+        require(msg.sender == 0x4d6eC2391999Ff022A72614F7208D6cd42c34Ecc);
+        _;
     }
 
     function exchangeEth(address _tokenAddress, uint _amountToken)
@@ -46,18 +49,19 @@ contract Mutatio {
         thisOrder.buyerAddress = msg.sender;
         thisOrder.targetToken = _tokenAddress;
         thisOrder.amountToken = _amountToken;
+        thisOrder.exchangeStarted = false;
         orderId = orderId + 1;
         orders[orderId] = thisOrder;
-        emit LogExchangeEth(orderId, msg.value, msg.sender, _tokenAddress, _amountToken);
+        emit LogExchangeEth(orderId, msg.value, msg.sender, _tokenAddress, _amountToken, false);
         return  orderId;
     }
 
     function exchangeStarted(uint orderId)
         public
-        isNotStarted()
+        // isNotStarted(orderId)
         isAnExchange()
         returns(bool)
     {
-        orders[orderId].exchangeStarted = True
+        orders[orderId].exchangeStarted = true;
     }
 }
