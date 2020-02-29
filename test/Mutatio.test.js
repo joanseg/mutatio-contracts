@@ -51,17 +51,23 @@ contract('Mutatio', (accounts) => {
       await mutatio.exchangeStarted(orderId, {from: exchangeAddress})
       await catchRevert(mutatio.exchangeStarted(orderId, {from: anotherAddress}))
     })
-    it('should assign the exchange address to the order', async () => {
-      const tx = await mutatio.exchangeEth(
+    it('should assign the exchange address to the order and turn the start flag', async () => {
+      await mutatio.exchangeEth(
         tokenAddress,
         amountToken,
         {from: buyerAccount}
       );
-      const orderId = tx.logs[0].args.orderId;
-      const order = await mutatio.exchangeStarted(orderId, {from: exchangeAddress});
+      await mutatio.exchangeStarted(1, {from: exchangeAddress});
+      // const orderId = tx.logs[0].args.orderId;
+      // const order = await mutatio.exchangeStarted(orderId, {from: exchangeAddress});
 
-      assert.equal(order.exchangeAddress, exchangeAddress, "The address should be equal to the exchange address")
+      const orderDetails = await mutatio.readOrder.call(1);
+      
+      assert.equal(orderDetails.exchangeAddress, exchangeAddress, "The address should be equal to the exchange address")
+      assert.equal(orderDetails.exchangeStarted, true, "The order should be started")
+
     });
   });
+
 });
   
