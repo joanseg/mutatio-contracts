@@ -8,8 +8,9 @@ contract MaybeDai is ERC20 {
   uint8 public decimals = 2;
   uint public INITIAL_SUPPLY = 10000;
 
-  function MyTokenFunction() public {
+  constructor() public { 
     _mint(msg.sender, INITIAL_SUPPLY);
+    _mint(0xd1c3163A1750488368CD4d349656746934f0C66b, INITIAL_SUPPLY);
     emit Transfer(address(0), msg.sender, totalSupply());
   }
 }
