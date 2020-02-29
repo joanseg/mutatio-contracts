@@ -32,18 +32,21 @@ contract Mutatio {
         bool exchangeStarted
     );
 
-    modifier isNotStarted(uint orderId) {
-        require(orders[orderId].exchangeStarted =! true);
+    modifier isNotStarted(uint _orderId) {
+        require(orders[_orderId].exchangeStarted =! true);
         _;
     }
     modifier isAnExchange() {
         require(msg.sender == 0x4d6eC2391999Ff022A72614F7208D6cd42c34Ecc);
         _;
     }
-    // modifier isTheRequiredAmount(uint orderId, address tokenTransaction) {
-    //     // require(orders[orderId].amountToken * 0.998 =< tokenTransaction.amount) //we should be able to check the token contract
-    //     // require(orders[orderId].targetToken == tokenTransaction.contract)
-    // }
+    modifier isTheRequiredAmount(uint _orderId) {
+        tx_data = eth.getTransactionReceipt.(tx_hash)
+        require(orders[_orderId].amountToken * 0.998 =< MaybeDai.balanceOf(this)) //we should be able to check the token contract
+        require(orders[_orderId].amountToken * 0.998 =< eth.getTransactionReceipt.(tx_hash) //we should be able to check the token contract
+
+        require(orders[_orderId].targetToken == tokenTransaction.contract)
+    }
 
     function exchangeEth(address _tokenAddress, uint _amountToken)
         public
@@ -93,16 +96,17 @@ contract Mutatio {
         return(depositAmount, buyerAddress, targetToken, amountToken, exchangeAddress, exchangeStarted);
     }
 
-    // function exchangeCompleted(uint orderId, address tokenTransaction)
-    //     public
-    //     payable
-    //     isAnExchange()
-    //     isTheRequiredAmount(orderId, tokenTransaction)
-    //     // isNotUsedBefore() // the tansaction should not be alredy been used
-    // {
-    //     thisOrder = orders[orderId];
-    //     thisOrder.exchangeAddress.transfer(thisOrder.depositAmount);
-    //     // token.transferFrom(owner, thisOrder.buyerAddress, thisOrder.amountToken); //Needs to import the token contract
-    // }
+    function exchangeCompleted(uint orderId)
+        public
+        payable
+        isAnExchange()
+        isTheRequiredAmount(orderId)
+        // isNotUsedBefore() // the tansaction should not be alredy been used
+    {
+        thisOrder = orders[orderId];
+        thisOrder.exchangeAddress.transfer(thisOrder.depositAmount);
+        MaybeDai.transfer(thisOrder.buyerAddress, thisOrder.amountToken);
+        // it should mark the order as completed orderCompleted = true
+    }
 
 }
