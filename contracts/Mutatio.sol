@@ -40,12 +40,13 @@ contract Mutatio {
         require(msg.sender == 0x4d6eC2391999Ff022A72614F7208D6cd42c34Ecc);
         _;
     }
-    modifier isTheRequiredAmount(uint _orderId) {
-        tx_data = eth.getTransactionReceipt.(tx_hash)
-        require(orders[_orderId].amountToken * 0.998 =< MaybeDai.balanceOf(this)) //we should be able to check the token contract
-        require(orders[_orderId].amountToken * 0.998 =< eth.getTransactionReceipt.(tx_hash) //we should be able to check the token contract
-
-        require(orders[_orderId].targetToken == tokenTransaction.contract)
+    modifier isTheRequiredAmount(uint _orderId, uint finalAmount) {
+        require(orders[_orderId].amountToken * 0.998 <= finalAmount); //we should be able to check the token contract
+        _;
+    }
+    modifier onlyContract() {
+        require(msg.sender == this);
+        _;
     }
 
     function exchangeEth(address _tokenAddress, uint _amountToken)
@@ -96,17 +97,23 @@ contract Mutatio {
         return(depositAmount, buyerAddress, targetToken, amountToken, exchangeAddress, exchangeStarted);
     }
 
-    function exchangeCompleted(uint orderId)
+    function exchangeCompleted(uint orderId, uint finalAmount)
         public
         payable
         isAnExchange()
-        isTheRequiredAmount(orderId)
+        isTheRequiredAmount(orderId, finalAmount)
         // isNotUsedBefore() // the tansaction should not be alredy been used
     {
-        thisOrder = orders[orderId];
-        thisOrder.exchangeAddress.transfer(thisOrder.depositAmount);
-        MaybeDai.transfer(thisOrder.buyerAddress, thisOrder.amountToken);
+        JALToken.transferFrom(msg.sender, orders[orderId].buyerAddress, finalAmount);
         // it should mark the order as completed orderCompleted = true
+        return reedemDeposit(orderId);
     }
 
+    function reedemDeposit(uint orderId)
+        public
+        payable
+        onlyContract()
+    {
+        orders[orderId].exchangeAddress.transfer(thisOrder.depositAmount);
+    }
 }
