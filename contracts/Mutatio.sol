@@ -33,20 +33,28 @@ contract Mutatio {
     );
 
     modifier isNotStarted(uint _orderId) {
-        require(orders[_orderId].exchangeStarted =! true);
+        require(orders[_orderId].exchangeStarted =! true, "Nos started");
         _;
     }
     modifier isAnExchange() {
-        require(msg.sender == 0x4d6eC2391999Ff022A72614F7208D6cd42c34Ecc);
+        require(msg.sender == exchange, "Is not an exchange");
         _;
     }
     modifier isTheRequiredAmount(uint _orderId, uint finalAmount) {
-        require(orders[_orderId].amountToken * 499 / 500 <= finalAmount); //we should be able to check the token contract
+        require(orders[_orderId].amountToken * 499 / 500 <= finalAmount, "Invalid amounts"); //we should be able to check the token contract
         _;
     }
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Is not the owner");
         _;
+    }
+
+    address exchange;
+    address token;
+
+    constructor(address _exchange, address _token) public {
+        exchange = _exchange;
+        token = _token;
     }
 
     function exchangeEth(address _tokenAddress, uint _amountToken)
@@ -108,18 +116,19 @@ contract Mutatio {
         // Botyo needs to approve this contract to tranfer from ERC20(tracker_0x_address).approve(address spender, uint tokens)
         // tracker_0x_address is the address of the ERC20 contract they want to deposit tokens from ( ContractA )
         // spender is your deployed escrow contract address
-        require(JALToken(0x0d3DBbcBD82B28a30E241201506BA84f79fe001e).transferFrom(msg.sender, orders[orderId].buyerAddress, finalAmount));
+        require(JALToken(token).transferFrom(msg.sender, orders[orderId].buyerAddress, finalAmount), "Can't transfer");
         // it should mark the order as completed orderCompleted = true
-        return reedemDeposit(orderId);
+        // reedemDeposit(orderId);
+        return true;
     }
 
-    function reedemDeposit(uint orderId)
-        public
-        payable
-        onlyOwner()
-    {
-        require(orders[orderId].exchangeAddress.transfer(orders[orderId].depositAmount));
-    }
+    // function reedemDeposit(uint orderId)
+    //     public
+    //     payable
+    //     onlyOwner()
+    // {
+    //     require(orders[orderId].exchangeAddress.transfer(orders[orderId].depositAmount));
+    // }
 
 
 }

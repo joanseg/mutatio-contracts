@@ -19,7 +19,7 @@ contract JALToken {
     }
 
     function transfer(address to, uint256 value) public returns (bool success) {
-        require(balanceOf[msg.sender] >= value);
+        require(balanceOf[msg.sender] >= value, "Not enough funds");
 
         balanceOf[msg.sender] -= value;  // deduct from sender's balance
         balanceOf[to] += value;          // add to recipient's balance
@@ -44,8 +44,8 @@ contract JALToken {
         public
         returns (bool success)
     {
-        require(value <= balanceOf[from]);
-        require(value <= allowance[from][msg.sender]);
+        require(value <= balanceOf[from], "not enough funds from sender");
+        require(value <= allowance[from][msg.sender], "not enough allowance");
 
         balanceOf[from] -= value;
         balanceOf[to] += value;
