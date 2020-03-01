@@ -65,9 +65,19 @@ contract('Mutatio', (accounts) => {
       
       assert.equal(orderDetails.exchangeAddress, exchangeAddress, "The address should be equal to the exchange address")
       assert.equal(orderDetails.exchangeStarted, true, "The order should be started")
-
     });
   });
 
+  describe('exchangeCompleted()', () => {
+    it('The transferFrom function should return true if an exchange calls this method and has the funds', async () => {
+      const tx = await mutatio.exchangeEth(
+        tokenAddress, 
+        amountToken
+      );
+      const result = mutatio.exchangeCompleted(1, 100, {from: exchangeAddress})
+      // console.log(result)
+
+      assert.equal(result, true, "The exchange should be able to complete")
+    });
+  });
 });
-  

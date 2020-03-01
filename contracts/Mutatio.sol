@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 //Import token contract
-import "./MaybeDai.sol";
+import "./JALToken.sol";
 
 //Change contract name to Mutatio
 
@@ -17,7 +17,7 @@ contract Mutatio {
         address buyerAddress;
         address targetToken;
         uint amountToken;
-        address exchangeAddress;
+        address payable exchangeAddress;
         bool exchangeStarted;
     }
 
@@ -41,11 +41,11 @@ contract Mutatio {
         _;
     }
     modifier isTheRequiredAmount(uint _orderId, uint finalAmount) {
-        require(orders[_orderId].amountToken * 0.998 <= finalAmount); //we should be able to check the token contract
+        require(orders[_orderId].amountToken * 499 / 500 <= finalAmount); //we should be able to check the token contract
         _;
     }
-    modifier onlyContract() {
-        require(msg.sender == this);
+    modifier onlyOwner() {
+        require(msg.sender == owner);
         _;
     }
 
@@ -97,14 +97,18 @@ contract Mutatio {
         return(depositAmount, buyerAddress, targetToken, amountToken, exchangeAddress, exchangeStarted);
     }
 
-    function exchangeCompleted(uint orderId, uint finalAmount)
+    function exchangeCompleted(uint orderId, uint256 finalAmount)
         public
         payable
         isAnExchange()
         isTheRequiredAmount(orderId, finalAmount)
+        returns(bool)
         // isNotUsedBefore() // the tansaction should not be alredy been used
     {
-        JALToken.transferFrom(msg.sender, orders[orderId].buyerAddress, finalAmount);
+        // Botyo needs to approve this contract to tranfer from ERC20(tracker_0x_address).approve(address spender, uint tokens)
+        // tracker_0x_address is the address of the ERC20 contract they want to deposit tokens from ( ContractA )
+        // spender is your deployed escrow contract address
+        require(JALToken(0x0d3DBbcBD82B28a30E241201506BA84f79fe001e).transferFrom(msg.sender, orders[orderId].buyerAddress, finalAmount));
         // it should mark the order as completed orderCompleted = true
         return reedemDeposit(orderId);
     }
@@ -112,8 +116,10 @@ contract Mutatio {
     function reedemDeposit(uint orderId)
         public
         payable
-        onlyContract()
+        onlyOwner()
     {
-        orders[orderId].exchangeAddress.transfer(thisOrder.depositAmount);
+        require(orders[orderId].exchangeAddress.transfer(orders[orderId].depositAmount));
     }
+
+
 }
